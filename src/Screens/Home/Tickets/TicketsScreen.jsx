@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 22,
-    fontWeight: '500', // semibold
+    fontWeight: '600', // semibold
     color: colors.primary,
     marginBottom: 20,
     textAlign: 'center',

@@ -1,6 +1,6 @@
 // colors.js
 export default {
-    primary: '#218aff',
+    primary: '#1e3269',
     secondary: '#fdfdfd',
     accent: '#FFA500',
     background: '#F5F5F5',

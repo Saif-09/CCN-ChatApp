@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 22,
-    fontWeight: '500',
+    fontWeight: '600',
     color: colors.primary,
     marginBottom: 16,
     textAlign: 'center',
