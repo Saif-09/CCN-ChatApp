@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 22,
-    fontWeight: '600', // semibold
+    fontWeight: '600',
     color: colors.primary,
-    marginBottom: 20,
+    marginBottom: 40,
     textAlign: 'center',
   },
   listContainer: {

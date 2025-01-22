@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     color: colors.primary,
-    marginBottom: 16,
+    marginBottom: 40,
     textAlign: 'center',
   },
   listContainer: {
