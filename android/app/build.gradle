@@ -80,6 +80,7 @@ android {
     namespace "com.ccnchatbotapp"
     defaultConfig {
         applicationId "com.ccnchatbotapp"
+        vectorDrawables.useSupportLibrary = true 
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
