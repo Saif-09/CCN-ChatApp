@@ -50,7 +50,7 @@ const SettingsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Scrollable Content */}
-      <ScrollView style={{ paddingHorizontal: 16 }}>
+      <ScrollView style={{ paddingHorizontal: 16, }}>
         {/* Title */}
         <Text style={styles.title}>Settings</Text>
 
@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 30,
     textAlign: 'center',
+    marginTop:22
   },
   sectionHeader: {
     fontSize: 18,
