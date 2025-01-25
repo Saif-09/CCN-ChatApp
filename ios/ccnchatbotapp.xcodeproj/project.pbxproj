@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* ccnchatbotappTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ccnchatbotappTests.m */; };
-		072329302D44B5CB005C882B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0723292F2D44B5CB005C882B /* GoogleService-Info.plist */; };
+		072329332D44F4ED005C882B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 072329322D44F4ED005C882B /* GoogleService-Info.plist */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -32,7 +32,8 @@
 		00E356EE1AD99517003FC87E /* ccnchatbotappTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ccnchatbotappTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ccnchatbotappTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ccnchatbotappTests.m; sourceTree = "<group>"; };
-		0723292F2D44B5CB005C882B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		072329312D44F17E005C882B /* ccnchatbotapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ccnchatbotapp.entitlements; path = ccnchatbotapp/ccnchatbotapp.entitlements; sourceTree = "<group>"; };
+		072329322D44F4ED005C882B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ccnchatbotapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ccnchatbotapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ccnchatbotapp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ccnchatbotapp/AppDelegate.mm; sourceTree = "<group>"; };
@@ -90,7 +91,8 @@
 		13B07FAE1A68108700A75B9A /* ccnchatbotapp */ = {
 			isa = PBXGroup;
 			children = (
-				0723292F2D44B5CB005C882B /* GoogleService-Info.plist */,
+				072329322D44F4ED005C882B /* GoogleService-Info.plist */,
+				072329312D44F17E005C882B /* ccnchatbotapp.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -248,10 +250,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				072329332D44F4ED005C882B /* GoogleService-Info.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				357B3E6A55AE6BAA95275882 /* PrivacyInfo.xcprivacy in Resources */,
-				072329302D44B5CB005C882B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,6 +489,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ccnchatbotapp/ccnchatbotapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L89SNCZWZ8;
 				ENABLE_BITCODE = NO;
@@ -503,6 +506,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.ccnchatapp11;
 				PRODUCT_NAME = ccnchatbotapp;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -516,6 +520,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ccnchatbotapp/ccnchatbotapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L89SNCZWZ8;
 				INFOPLIST_FILE = ccnchatbotapp/Info.plist;
@@ -531,6 +536,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.ccnchatapp11;
 				PRODUCT_NAME = ccnchatbotapp;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
