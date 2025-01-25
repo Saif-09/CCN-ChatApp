@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356751126413",
+    "project_id": "ccn-chatapp-e90c6",
+    "storage_bucket": "ccn-chatapp-e90c6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356751126413:android:6fd7e80f13aa02f2fb57c4",
+        "android_client_info": {
+          "package_name": "com.ccnchatbotapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2e6A1kDByMvqWu5qbRN1MIVmsdhyjArY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
