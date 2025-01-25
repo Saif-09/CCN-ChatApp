@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.reactjs.native.example.ccnchatbotapp</string>
+	<string>com.ccnchatapp11</string>
 	<key>PROJECT_ID</key>
 	<string>ccn-chatapp-e90c6</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:356751126413:ios:b691333b52ed0883fb57c4</string>
+	<string>1:356751126413:ios:a425502e5215ed04fb57c4</string>
 </dict>
 </plist>
