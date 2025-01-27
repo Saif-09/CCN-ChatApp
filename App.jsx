@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import {StyleSheet, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -11,7 +11,7 @@ import {
 } from './src/utils/notification/notificationUtils';
 
 const App = () => {
-  
+
   useEffect(() => {
     isIOS ? requestIOSNotificationPermission() : requestAndroidNotificationPermission();
   }, []);
@@ -33,4 +33,3 @@ const App = () => {
 
 export default App;
 
-const styles = StyleSheet.create({});
