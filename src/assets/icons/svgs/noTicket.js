@@ -4,7 +4,7 @@ import Svg, { Path } from "react-native-svg"
 function NoTicket(props) {
     return (
         <Svg
-            fill="#000"
+            fill="#808080"
             width={props.width || "800px"}
             height={props.height || "800px"}
             viewBox="0 0 32 32"

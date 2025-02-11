@@ -2,15 +2,22 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet, StatusBar, SafeAreaView } from 'react-native';
+import { getItem } from '../../utils/mmkvStorage';
 
 const SplashScreen = ({ }) => {
     const navigation = useNavigation();
     useEffect(() => {
-        setTimeout(() => {
-            navigation.replace('Login');
-        }, 3000); // 3 seconds delay
-    }, [navigation]);
+        const checkLoginStatus = async () => {
+            const token = getItem('access_token'); 
+            if (token) {
+                navigation.replace('Home'); 
+            } else {
+                navigation.replace('Login');
+            }
+        };
 
+        setTimeout(checkLoginStatus, 2000); // 2 seconds delay
+    }, [navigation]);
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar hidden />

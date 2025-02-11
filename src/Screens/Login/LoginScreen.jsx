@@ -1,46 +1,48 @@
-// LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { 
+    View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator 
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../utils/theme/colors';
+import { loginUser } from '../../redux/slices/authSlice';
 
 const LoginScreen = ({ navigation }) => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+    const { loading, error } = useSelector((state) => state.auth);
 
-    const handleLogin = () => {
-        // Add your login logic here
-        console.log('Email:', email);
-        console.log('Password:', password);
-        navigation.replace('Home'); // Navigate to the Home screen after login
+    const handleLogin = async () => {
+        if (!username || !password) {
+            Alert.alert('Error', 'Please enter username and password.');
+            return;
+        }
+
+        dispatch(loginUser({ username, password }))
+            .unwrap()
+            .then(() => {
+                navigation.replace('Home');
+            })
+            .catch((err) => {
+                Alert.alert('Login Failed', err);
+            });
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={[styles.container, { backgroundColor: colors.background }]}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.innerContainer}>
-                {/* Logo */}
-                <Image
-                    source={require('../../assets/images/ccnLogo.png')} // Replace with your logo
-                    style={styles.logo}
-                />
-
-                {/* Title */}
+                <Image source={require('../../assets/images/ccnLogo.png')} style={styles.logo} />
                 <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
 
-                {/* Email Input */}
                 <TextInput
                     style={[styles.input, { backgroundColor: colors.secondary, borderColor: colors.border, color: colors.text }]}
-                    placeholder="Email"
+                    placeholder="Username"
                     placeholderTextColor={colors.placeholder}
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
+                    value={username}
+                    onChangeText={setUsername}
                     autoCapitalize="none"
                 />
 
-                {/* Password Input */}
                 <TextInput
                     style={[styles.input, { backgroundColor: colors.secondary, borderColor: colors.border, color: colors.text }]}
                     placeholder="Password"
@@ -50,20 +52,11 @@ const LoginScreen = ({ navigation }) => {
                     secureTextEntry
                 />
 
-                {/* Login Button */}
-                <TouchableOpacity
-                    style={[styles.loginButton, { backgroundColor: colors.primary }]}
-                    onPress={handleLogin}
-                >
-                    <Text style={[styles.loginButtonText, { color: colors.secondary }]}>Login</Text>
+                <TouchableOpacity style={[styles.loginButton, { backgroundColor: colors.primary }]} onPress={handleLogin} disabled={loading}>
+                    {loading ? <ActivityIndicator size="small" color={colors.secondary} /> : <Text style={[styles.loginButtonText, { color: colors.secondary }]}>Login</Text>}
                 </TouchableOpacity>
 
-                {/* Sign Up Link */}
-                <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                    <Text style={[styles.signUpText, { color: colors.text }]}>
-                        Don't have an account? <Text style={[styles.signUpLink, { color: colors.primary }]}>Sign Up</Text>
-                    </Text>
-                </TouchableOpacity>
+                {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
             </View>
         </KeyboardAvoidingView>
     );

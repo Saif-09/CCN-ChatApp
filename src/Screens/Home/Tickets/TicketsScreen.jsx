@@ -1,50 +1,76 @@
-// TicketsScreen.js
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, SafeAreaView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, SafeAreaView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import colors from '../../../utils/theme/colors';
-import { isAndroid } from '../../../utils/theme/responsiveTheme';
-import Icon from 'react-native-vector-icons/Ionicons'; // For icons
+import { getItem } from '../../../utils/mmkvStorage'; // MMKV storage utility
+import Icon from 'react-native-vector-icons/Ionicons';
 import NoTicket from '../../../assets/icons/svgs/noTicket';
 
-// Mock data for open tickets
-const mockOpenTickets = [
-  {
-    id: '1',
-    studentName: 'John Doe',
-    course: 'CCN101 - Introduction to CCN',
-    query: 'I am unable to access the course materials.',
-    status: 'Open',
-    date: '2023-10-01',
-  },
-  {
-    id: '2',
-    studentName: 'Jane Smith',
-    course: 'CCN201 - Advanced CCN Concepts',
-    query: 'The video lectures are not loading properly.',
-    status: 'In Progress',
-    date: '2023-10-02',
-  },
-];
+const BASE_URL = 'http://50.17.52.102/api/tickets/';
 
 const TicketsScreen = () => {
-  // Handle ticket press
-  const handleTicketPress = (item) => {
-    console.log('Ticket Pressed:', item);
-    // Add logic to navigate to the ticket details screen
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation(); // Initialize navigation
+
+  // Fetch tickets from API
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const token = getItem('access_token'); // Get stored token from MMKV
+      const role = getItem('user_role'); // Get user role (Admin or Sales)
+
+      if (!token || !role) {
+        Alert.alert('Error', 'Authentication required. Please login again.');
+        return;
+      }
+
+      // Determine correct endpoint based on user role
+      const endpoint = role === 'Admin' ? '/api/tickets/' : '/api/tickets/assigned/';
+
+      const response = await axios.get(`http://50.17.52.102${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200) {
+        setTickets(response.data);
+      } else {
+        Alert.alert('Error', 'Failed to fetch tickets.');
+      }
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Render each open ticket item
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  // Handle ticket press (Navigate to ChatScreen)
+  const handleTicketPress = (item) => {
+    navigation.navigate('Chat', {
+      userId: item.student_id, // Pass student ID
+      chatId: item.id, // Pass ticket ID as Chat ID
+      ticketQuery: item.description, // Pass ticket query
+    });
+  };
+
+  // Render each ticket item
   const renderTicketItem = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
         styles.ticketItem,
-        pressed && styles.ticketItemPressed, // Add visual feedback when pressed
+        pressed && styles.ticketItemPressed,
       ]}
       onPress={() => handleTicketPress(item)}
     >
       {/* Ticket Header */}
       <View style={styles.ticketHeader}>
-        <Text style={styles.ticketTitle}>{item.query}</Text>
+        <Text style={styles.ticketTitle}>{item.description}</Text>
         <View style={[styles.statusBadge, styles[`status${item.status.replace(/\s/g, '')}`]]}>
           <Text style={styles.statusText}>{item.status}</Text>
         </View>
@@ -54,39 +80,39 @@ const TicketsScreen = () => {
       <View style={styles.ticketDetails}>
         <View style={styles.detailRow}>
           <Icon name="person-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.studentName}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Icon name="book-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.course}</Text>
+          <Text style={styles.detailText}>Student ID: {item.student_id}</Text>
         </View>
         <View style={styles.detailRow}>
           <Icon name="calendar-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.date}</Text>
+          <Text style={styles.detailText}>{new Date(item.created_at).toLocaleDateString()}</Text>
         </View>
+        {item.answer && (
+          <View style={styles.detailRow}>
+            <Icon name="chatbox-ellipses-outline" size={16} color={colors.textLight} />
+            <Text style={styles.detailText}>Answer: {item.answer}</Text>
+          </View>
+        )}
       </View>
     </Pressable>
   );
 
-  const renderNoTickets = () => (
-    <View style={{ width: '100%', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
-      <NoTicket width={150} height={150} />
-      <Text style={styles.noTicketsText}>No Tickets Available</Text>
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Open Tickets</Text>
-      {mockOpenTickets.length > 0 ? (
+      <Text style={styles.header}>Your Tickets</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+      ) : tickets.length > 0 ? (
         <FlatList
-          data={mockOpenTickets}
-          keyExtractor={(item) => item.id}
+          data={tickets}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderTicketItem}
           contentContainerStyle={styles.listContainer}
         />
       ) : (
-        renderNoTickets()
+        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+          <NoTicket width={150} height={150} />
+          <Text style={styles.noTicketsText}>No Tickets Available</Text>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -104,12 +130,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     color: colors.primary,
-    marginBottom: 40,
+    marginBottom: 20,
     textAlign: 'center',
   },
   listContainer: {
     paddingBottom: 16,
-    paddingHorizontal: isAndroid ? 0 : 16,
   },
   ticketItem: {
     backgroundColor: colors.secondary,
@@ -122,11 +147,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // For Android
+    elevation: 3,
   },
   ticketItemPressed: {
-    opacity: 0.8, // Visual feedback when pressed
-    transform: [{ scale: 0.98 }], // Slightly shrink when pressed
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   ticketHeader: {
     flexDirection: 'row',
@@ -136,7 +161,7 @@ const styles = StyleSheet.create({
   },
   ticketTitle: {
     fontSize: 16,
-    fontWeight: '600', // semibold
+    fontWeight: '600',
     color: colors.text,
     flex: 1,
     marginRight: 10,
@@ -150,14 +175,14 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600', // semibold
+    fontWeight: '600',
     color: colors.secondary,
   },
-  statusOpen: {
-    backgroundColor: colors.error, // Red for Open status
+  statusassigned: {
+    backgroundColor: colors.warning,
   },
-  statusInProgress: {
-    backgroundColor: colors.warning, // Gold for In Progress status
+  statusclosed: {
+    backgroundColor: colors.success,
   },
   ticketDetails: {
     marginTop: 8,

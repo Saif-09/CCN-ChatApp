@@ -1,44 +1,55 @@
-// History.js
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, SafeAreaView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, SafeAreaView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import axios from 'axios';
 import colors from '../../utils/theme/colors';
-import Icon from 'react-native-vector-icons/Ionicons'; // For icons
-import { isIOS } from '../../utils/theme/responsiveTheme';
+import { getItem } from '../../utils/mmkvStorage'; // MMKV storage utility
+import Icon from 'react-native-vector-icons/Ionicons'; 
 import NoTicket from '../../assets/icons/svgs/noTicket';
 
-// Mock data for closed tickets
-const mockClosedTickets = [
-  {
-    id: '1',
-    studentName: 'Alice Johnson',
-    course: 'CCN301 - CCN Certification Prep',
-    query: 'I need clarification on the final project requirements.',
-    status: 'Closed',
-    date: '2023-10-03',
-  },
-  {
-    id: '2',
-    studentName: 'Bob Brown',
-    course: 'CCN101 - Introduction to CCN',
-    query: 'The quiz questions seem incorrect.',
-    status: 'Closed',
-    date: '2023-10-04',
-  },
-  {
-    id: '3',
-    studentName: 'Charlie Davis',
-    course: 'CCN201 - Advanced CCN Concepts',
-    query: 'The assignment deadline was too short.',
-    status: 'Closed',
-    date: '2023-10-05',
-  },
-];
+const BASE_URL = 'http://50.17.52.102/api/tickets/closed/'; // API Endpoint
 
 const History = () => {
-  // Handle ticket press event
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch closed tickets from API
+  const fetchClosedTickets = async () => {
+    setLoading(true);
+    try {
+      const token = getItem('access_token'); // Get admin token from MMKV
+      const role = getItem('user_role');
+
+      if (!token || role !== 'Admin') {
+        Alert.alert('Error', 'Unauthorized access. Admin role required.');
+        return;
+      }
+
+      const response = await axios.get(BASE_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200) {
+        setTickets(response.data);
+        console.log(response.data, "response");
+      } else {
+        Alert.alert('Error', 'Failed to fetch closed tickets.');
+      }
+    } catch (error) {
+      console.error('Error fetching closed tickets:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClosedTickets();
+  }, []);
+
+  // Handle ticket press
   const handleTicketPress = (item) => {
-    // Implement your logic here
-    console.log('Ticket pressed:', item);
+    console.log('Ticket Pressed:', item);
+    // Navigate to ticket details if needed
   };
 
   // Render each closed ticket item
@@ -46,14 +57,14 @@ const History = () => {
     <Pressable
       style={({ pressed }) => [
         styles.ticketItem,
-        pressed && styles.ticketItemPressed, // Add visual feedback when pressed
+        pressed && styles.ticketItemPressed,
       ]}
       onPress={() => handleTicketPress(item)}
     >
       {/* Ticket Header */}
       <View style={styles.ticketHeader}>
-        <Text style={styles.ticketTitle}>{item.query}</Text>
-        <View style={[styles.statusBadge, styles[`status${item.status.replace(/\s/g, '')}`]]}>
+        <Text style={styles.ticketTitle}>{item.description}</Text>
+        <View style={[styles.statusBadge, styles.statusClosed]}>
           <Text style={styles.statusText}>{item.status}</Text>
         </View>
       </View>
@@ -62,16 +73,22 @@ const History = () => {
       <View style={styles.ticketDetails}>
         <View style={styles.detailRow}>
           <Icon name="person-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.studentName}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Icon name="book-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.course}</Text>
+          <Text style={styles.detailText}>Student ID: {item.student_id}</Text>
         </View>
         <View style={styles.detailRow}>
           <Icon name="calendar-outline" size={16} color={colors.textLight} />
-          <Text style={styles.detailText}>{item.date}</Text>
+          <Text style={styles.detailText}>{new Date(item.created_at).toLocaleDateString()}</Text>
         </View>
+        <View style={styles.detailRow}>
+          <Icon name="person-circle-outline" size={16} color={colors.textLight} />
+          <Text style={styles.detailText}>Closed by: {item.closed_by || 'N/A'}</Text>
+        </View>
+        {item.answer && (
+          <View style={styles.detailRow}>
+            <Icon name="chatbox-ellipses-outline" size={16} color={colors.textLight} />
+            <Text style={styles.detailText}>Answer: {item.answer}</Text>
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -79,19 +96,25 @@ const History = () => {
   const renderNoTickets = () => (
     <View style={{ width: '100%', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
       <NoTicket width={150} height={150} />
-      <Text style={styles.noTicketsText}>No Tickets Available</Text>
+      <Text style={styles.noTicketsText}>No Closed Tickets</Text>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>History</Text>
-      {mockClosedTickets.length > 0 ? (<FlatList
-        data={mockClosedTickets}
-        keyExtractor={(item) => item.id}
-        renderItem={renderClosedTicketItem}
-        contentContainerStyle={styles.listContainer}
-      />) : renderNoTickets()}
+      <Text style={styles.header}>Closed Tickets</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+      ) : tickets.length > 0 ? (
+        <FlatList
+          data={tickets}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderClosedTicketItem}
+          contentContainerStyle={styles.listContainer}
+        />
+      ) : (
+        renderNoTickets()
+      )}
     </SafeAreaView>
   );
 };
@@ -108,13 +131,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     color: colors.primary,
-    marginBottom: 40,
-    marginTop:4,
+    marginBottom: 20,
+    marginTop: 4,
     textAlign: 'center',
   },
   listContainer: {
     paddingBottom: 16,
-    paddingHorizontal: isIOS ? 16 : 0,
   },
   ticketItem: {
     backgroundColor: colors.secondary,
@@ -127,11 +149,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // For Android
+    elevation: 3,
   },
   ticketItemPressed: {
-    opacity: 0.8, // Visual feedback when pressed
-    transform: [{ scale: 0.98 }], // Slightly shrink when pressed
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   ticketHeader: {
     flexDirection: 'row',
@@ -141,7 +163,7 @@ const styles = StyleSheet.create({
   },
   ticketTitle: {
     fontSize: 16,
-    fontWeight: '600', // semibold
+    fontWeight: '600',
     color: colors.text,
     flex: 1,
     marginRight: 10,
@@ -155,17 +177,11 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600', // semibold
-    color: colors.secondary, // Changed to white for better visibility
+    fontWeight: '600',
+    color: colors.secondary,
   },
   statusClosed: {
     backgroundColor: colors.success, // Green for Closed status
-  },
-  statusOpen: {
-    backgroundColor: colors.error, // Red for Open status
-  },
-  statusInProgress: {
-    backgroundColor: colors.warning, // Gold for In Progress status
   },
   ticketDetails: {
     marginTop: 8,
