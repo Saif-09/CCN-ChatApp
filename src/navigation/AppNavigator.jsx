@@ -5,6 +5,7 @@ import SplashScreen from '../Screens/Splash/SplashScreen';
 import LoginScreen from '../Screens/Login/LoginScreen';
 import BottomNavigator from './BottomNavigator';
 import ChatScreen from '../Screens/chats/ChatScreen';
+import CreateUserScreen from '../Screens/User/CreateUserScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,8 @@ const AppNavigator = () => {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Home" component={BottomNavigator} />
                 <Stack.Screen name="Chat" component={ChatScreen} />
+                <Stack.Screen name="CreateUser" component={CreateUserScreen} />
+                
                 {/* <Stack.Screen name="SearchResultsPage" component={SearchResultsPage} /> */}
                 {/* <Stack.Screen name="WebView" component={WebViewScreen} /> */}
 

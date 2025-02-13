@@ -1,6 +1,11 @@
 import { PermissionsAndroid } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
+import axios from 'axios';
+import { getItem } from '../mmkvStorage';
+
+
+const BASE_URL = 'http://50.17.52.102/api/update-fcm-token/'; 
 
 export const requestAndroidNotificationPermission = async () => {
     const granted = await PermissionsAndroid.request(
@@ -8,7 +13,7 @@ export const requestAndroidNotificationPermission = async () => {
         {
             title: 'Notification Permission',
             message:
-                'This app needs access to your notification ' +
+                'This app needs access to your notifications ' +
                 'so you can get notified when you are not using the app.',
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
@@ -58,7 +63,29 @@ export const onDisplayNotification = async (remoteMessage) => {
     });
 };
 
+// Fetch and send FCM token to the backend
 export const getToken = async () => {
-    const token = await messaging().getToken();
-    console.log('token', token);
+    try {
+        const token = await messaging().getToken();
+        console.log('FCM Token:', token);
+
+        const authToken = getItem('access_token'); // Get stored auth token
+        if (!authToken) {
+            console.error('User not authenticated. Cannot send FCM token.');
+            return;
+        }
+
+        // API Call to Send FCM Token
+        const response = await axios.post(BASE_URL, { fcm_token: token }, {
+            headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        if (response.status === 200) {
+            console.log('FCM Token sent successfully:', response.data.message);
+        } else {
+            console.error('Failed to send FCM Token:', response.data);
+        }
+    } catch (error) {
+        console.error('Error fetching or sending FCM token:', error.response?.data || error.message);
+    }
 };

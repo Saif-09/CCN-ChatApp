@@ -1,11 +1,17 @@
 // SettingsScreen.js
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import colors from '../../utils/theme/colors';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { getItem, removeItem } from '../../utils/mmkvStorage';
+import { useNavigation } from '@react-navigation/native';
 
 const SettingsScreen = () => {
-  const isAdmin = true; // Set this dynamically based on user role
+
+  const navigation = useNavigation();
+  const role = getItem('user_role');
+
+  const isAdmin = role === 'Admin'; // Set this dynamically based on user role
 
   const handleEditProfile = () => {
     console.log('Edit Profile');
@@ -34,6 +40,7 @@ const SettingsScreen = () => {
 
   const handleCreateNewUser = () => {
     console.log('Create New User');
+    navigation.navigate('CreateUser')
     // Add logic to navigate to the Create New User screen
   };
 
@@ -43,9 +50,33 @@ const SettingsScreen = () => {
   };
 
   const handleLogout = () => {
-    console.log('Logout');
-    // Add logic to logout the user
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            removeItem('access_token');
+            removeItem('refresh_token');
+            removeItem('user_role');
+            removeItem('user_id');
+
+            console.log('User logged out');
+
+            // Navigate back to LoginScreen
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          },
+        },
+      ]
+    );
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,7 +158,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 30,
     textAlign: 'center',
-    marginTop:22
+    marginTop: 22
   },
   sectionHeader: {
     fontSize: 18,

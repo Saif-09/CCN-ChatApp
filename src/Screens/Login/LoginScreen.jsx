@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator 
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import NetInfo from '@react-native-community/netinfo'; // Import NetInfo
 import colors from '../../utils/theme/colors';
 import { loginUser } from '../../redux/slices/authSlice';
 
 const LoginScreen = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isConnected, setIsConnected] = useState(true); // State for internet status
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.auth);
 
+    useEffect(() => {
+        // Subscribe to network status updates
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+        });
+
+        return () => unsubscribe(); // Cleanup on unmount
+    }, []);
+
     const handleLogin = async () => {
+        if (!isConnected) {
+            Alert.alert('No Internet', 'Please check your internet connection and try again.');
+            return;
+        }
+
         if (!username || !password) {
             Alert.alert('Error', 'Please enter username and password.');
             return;
@@ -33,6 +49,13 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.innerContainer}>
                 <Image source={require('../../assets/images/ccnLogo.png')} style={styles.logo} />
                 <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
+
+                {/* Internet Status Indicator */}
+                {!isConnected && (
+                    <Text style={{ color: 'red', marginBottom: 10 }}>
+                        No internet connection
+                    </Text>
+                )}
 
                 <TextInput
                     style={[styles.input, { backgroundColor: colors.secondary, borderColor: colors.border, color: colors.text }]}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,89 +8,121 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { getItem } from '../../utils/mmkvStorage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../utils/theme/colors';
-import {useNavigation} from '@react-navigation/native';
 
-const ChatScreen = ({route}) => {
-  const {userId, chatId, ticketQuery} = route.params; // Extract params
-  const navigation = useNavigation(); // Initialize navigation
+const ChatScreen = ({ route }) => {
+  const { userId, chatId, ticketQuery } = route.params;
+  const navigation = useNavigation();
 
-  const [comment, setComment] = useState(''); // Optional comment input
-  const [teamName] = useState('Operations Team'); // Static team name for now
-  const [userDetails, setUserDetails] = useState(null); // State to hold user details
-  const [loading, setLoading] = useState(true); // State for loading indicator
+  const [comment, setComment] = useState('');
+  const [userDetails, setUserDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isResolved, setIsResolved] = useState(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 
-  // Fetch user details
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
   const fetchUserDetails = async () => {
     try {
-      const response = await fetch(
-        `http://50.17.52.102/api/students/${userId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      const response = await fetch(`http://50.17.52.102/api/students/${userId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
       if (response.ok) {
         const data = await response.json();
-        setUserDetails(data); // Set user details in state
+        setUserDetails(data);
       } else {
         Alert.alert('Error', 'Failed to fetch user details');
       }
     } catch (error) {
       console.error('Error fetching user details:', error);
-      Alert.alert(
-        'Error',
-        'An error occurred while fetching user details. Please try again.',
-      );
+      Alert.alert('Error', 'An error occurred while fetching user details.');
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 
-  // Handle marking the chat as resolved
-  const markAsResolved = async () => {
+  const updateTicketAnswer = async () => {
+    if (!comment.trim()) {
+      Alert.alert('Error', 'Please enter an answer before submitting.');
+      return;
+    }
+
     try {
-      const payload = {
-        comment: comment.trim(),
-        teamName: teamName,
-      };
+      const token = getItem('access_token');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token is missing. Please log in again.');
+        return;
+      }
+
+      const payload = { answer: comment.trim() };
 
       const response = await fetch(
-        `http://54.91.37.28/api/close-ticket/${chatId}/`,
+        `http://50.17.52.102/api/tickets/update-view-ticket/${chatId}/`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        Alert.alert('Success', 'Ticket marked as resolved.');
+        setIsResolved(true);
+      } else {
+        Alert.alert('Error', 'Failed to update the ticket.');
+      }
+    } catch (error) {
+      console.error('Error updating ticket answer:', error);
+      Alert.alert('Error', 'An error occurred while updating the ticket.');
+    }
+  };
+
+  const closeTicket = async () => {
+    try {
+      const token = getItem('access_token');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token is missing. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(
+        `http://50.17.52.102/api/close-ticket/${chatId}/`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(payload),
-        },
+        }
       );
 
       if (response.ok) {
-        const data = await response.json();
-        Alert.alert('Success', data.message); // Display success message
-
-        // Navigate to the Tickets tab in BottomNavigator
-        navigation.navigate('Home', {screen: 'Tickets'});
+        Alert.alert('Success', 'Ticket closed successfully.');
+        navigation.navigate('Tickets', { closedTicketId: chatId });
       } else {
-        Alert.alert('Error', 'Failed to close the ticket');
+        Alert.alert('Error', 'Failed to close the ticket.');
       }
     } catch (error) {
       console.error('Error closing the ticket:', error);
-      Alert.alert(
-        'Error',
-        'An error occurred while closing the ticket. Please try again.',
-      );
+      Alert.alert('Error', 'An error occurred while closing the ticket.');
     }
   };
-
-  useEffect(() => {
-    fetchUserDetails(); // Fetch user details when the component mounts
-  }, []);
 
   if (loading) {
     return (
@@ -102,61 +134,72 @@ const ChatScreen = ({route}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with Chat ID */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Ticket Details</Text>
-        <Text style={styles.subHeaderText}>Chat ID: {chatId}</Text>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1 }}>
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>{ticketQuery.substring(0, 20)}...</Text>
+              {isResolved && (
+                <TouchableOpacity style={styles.closeTicketButton} onPress={closeTicket}>
+                  <Text style={styles.closeTicketButtonText}>Close Ticket</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-      {/* User Details */}
-      <View style={styles.detailsContainer}>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>User ID:</Text> {userId}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Name:</Text>{' '}
-          {userDetails?.name || 'N/A'}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Education:</Text>{' '}
-          {userDetails?.education_qualification || 'N/A'}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Position:</Text>{' '}
-          {userDetails?.working_position || 'N/A'}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Email:</Text>{' '}
-          {userDetails?.email || 'N/A'}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Mobile:</Text>{' '}
-          {userDetails?.mobile_no || 'N/A'}
-        </Text>
-        <Text style={styles.detailsText}>
-          <Text style={styles.detailsLabel}>Verified:</Text>{' '}
-          {userDetails?.is_verified ? 'Yes' : 'No'}
-        </Text>
-      </View>
+            <ScrollView style={styles.content}>
+              {/* User Details (Accordion Style) */}
+              <TouchableOpacity onPress={() => setIsDetailsExpanded(!isDetailsExpanded)}>
+                <View style={styles.accordionHeader}>
+                  <Text style={styles.accordionHeaderText}>User Details</Text>
+                  <Ionicons
+                    name={isDetailsExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={colors.text}
+                  />
+                </View>
+              </TouchableOpacity>
 
-      {/* User's Ticket Query */}
-      <View style={styles.queryContainer}>
-        <Text style={styles.queryLabel}>User's Query:</Text>
-        <Text style={styles.queryText}>{ticketQuery}</Text>
-      </View>
+              {isDetailsExpanded && (
+                <View style={styles.detailsContainer}>
+                  <Text style={styles.detailsText}>Name: {userDetails?.name || 'N/A'}</Text>
+                  <Text style={styles.detailsText}>Email: {userDetails?.email || 'N/A'}</Text>
+                  <Text style={styles.detailsText}>Mobile: {userDetails?.mobile_no || 'N/A'}</Text>
+                  <Text style={styles.detailsText}>Position: {userDetails?.working_position || 'N/A'}</Text>
+                  <Text style={styles.detailsText}>Verified: {userDetails?.is_verified ? 'Yes' : 'No'}</Text>
+                </View>
+              )}
 
-      {/* Comment Input */}
-      <TextInput
-        style={styles.commentInput}
-        placeholder="Add a comment (optional)..."
-        value={comment}
-        onChangeText={setComment}
-      />
+              {/* User's Query */}
+              <View style={styles.queryContainer}>
+                <Text style={styles.queryLabel}>User's Query:</Text>
+                <Text style={styles.queryText}>{ticketQuery}</Text>
+              </View>
+            </ScrollView>
 
-      {/* Mark as Resolved Button */}
-      <TouchableOpacity style={styles.resolveButton} onPress={markAsResolved}>
-        <Text style={styles.resolveButtonText}>Mark as Resolved</Text>
-      </TouchableOpacity>
+            {/* Answer Chatbox */}
+            {!isResolved && (
+              <View style={styles.footer}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Write your answer..."
+                  value={comment}
+                  onChangeText={setComment}
+                />
+                <TouchableOpacity style={styles.resolveButton} onPress={updateTicketAnswer}>
+                  <Text style={styles.resolveButtonText}>Send</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -164,76 +207,33 @@ const ChatScreen = ({route}) => {
 export default ChatScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: colors.primary,
-    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  subHeaderText: {
-    fontSize: 14,
-    color: 'white',
-    marginTop: 4,
-  },
-  detailsContainer: {
-    margin: 16,
-    padding: 16,
+  headerText: { fontSize: 16, fontWeight: 'bold', color: 'white' },
+  closeTicketButton: { backgroundColor: 'red', padding: 8, borderRadius: 5 },
+  closeTicketButtonText: { color: 'white', fontWeight: 'bold' },
+  content: { flex: 1, padding: 16 },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
     backgroundColor: colors.secondary,
     borderRadius: 8,
   },
-  detailsText: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: colors.text,
-  },
-  detailsLabel: {
-    fontWeight: 'bold',
-  },
-  queryContainer: {
-    marginHorizontal: 16,
-    padding: 16,
-    backgroundColor: '#e4ffe1', // Light green for query section
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  queryLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  queryText: {
-    fontSize: 16,
-    color: colors.text,
-  },
-  commentInput: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  resolveButton: {
-    marginHorizontal: 16,
-    marginTop: 8,
-    backgroundColor: colors.success, // Green for resolved button
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  resolveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  accordionHeaderText: { fontSize: 16, fontWeight: 'bold' },
+  detailsContainer: { padding: 12, backgroundColor: 'white', borderRadius: 8, marginTop: 8 },
+  detailsText: { fontSize: 14, marginBottom: 4 },
+  queryContainer: { padding: 16, backgroundColor: '#FFF3CD', borderRadius: 8, marginTop: 16 },
+  queryLabel: { fontWeight: 'bold', fontSize: 16 },
+  queryText: { fontSize: 16 },
+  footer: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'white' },
+  commentInput: { flex: 1, padding: 10, borderWidth: 1, borderRadius: 8, borderColor: colors.border },
+  resolveButton: { marginLeft: 10, backgroundColor: colors.success, padding: 10, borderRadius: 8 },
+  resolveButtonText: { color: 'white', fontWeight: 'bold' },
 });
