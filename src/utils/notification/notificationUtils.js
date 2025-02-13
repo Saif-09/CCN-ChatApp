@@ -3,9 +3,9 @@ import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import axios from 'axios';
 import { getItem } from '../mmkvStorage';
+import { BASE_URL } from '../../api';
 
 
-const BASE_URL = 'http://50.17.52.102/api/update-fcm-token/'; 
 
 export const requestAndroidNotificationPermission = async () => {
     const granted = await PermissionsAndroid.request(
@@ -76,7 +76,7 @@ export const getToken = async () => {
         }
 
         // API Call to Send FCM Token
-        const response = await axios.post(BASE_URL, { fcm_token: token }, {
+        const response = await axios.post(`${BASE_URL}/api/update-fcm-token/`, { fcm_token: token }, {
             headers: { Authorization: `Bearer ${authToken}` },
         });
 

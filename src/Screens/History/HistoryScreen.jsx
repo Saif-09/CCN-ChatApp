@@ -5,8 +5,8 @@ import colors from '../../utils/theme/colors';
 import { getItem } from '../../utils/mmkvStorage'; // MMKV storage utility
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import NoTicket from '../../assets/icons/svgs/noTicket';
+import { BASE_URL } from '../../api';
 
-const BASE_URL = 'http://50.17.52.102/api/tickets/closed/'; // API Endpoint
 
 const History = () => {
   const [tickets, setTickets] = useState([]);
@@ -24,7 +24,7 @@ const History = () => {
         return;
       }
 
-      const response = await axios.get(BASE_URL, {
+      const response = await axios.get(`${BASE_URL}/api/tickets/closed/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -6,8 +6,8 @@ import colors from '../../../utils/theme/colors';
 import { getItem } from '../../../utils/mmkvStorage'; // MMKV storage utility
 import Icon from 'react-native-vector-icons/Ionicons';
 import NoTicket from '../../../assets/icons/svgs/noTicket';
+import { BASE_URL } from '../../../api';
 
-const BASE_URL = 'http://50.17.52.102/api/tickets/';
 
 const TicketsScreen = () => {
   const [tickets, setTickets] = useState([]);
@@ -29,7 +29,7 @@ const TicketsScreen = () => {
       // Determine correct endpoint based on user role
       const endpoint = role === 'Admin' ? '/api/tickets/' : '/api/tickets/assigned/';
 
-      const response = await axios.get(`http://50.17.52.102${endpoint}`, {
+      const response = await axios.get(`${BASE_URL}${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

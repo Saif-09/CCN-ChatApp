@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { setItem, getItem, removeItem } from '../../utils/mmkvStorage';
+import { BASE_URL } from '../../api';
 
 
-const BASE_URL = 'http://50.17.52.102/api/login/';
 
 // Login Thunk
 export const loginUser = createAsyncThunk('auth/loginUser', async (credentials, { rejectWithValue }) => {
     try {
-        const response = await axios.post(BASE_URL, credentials);
+        const response = await axios.post(`${BASE_URL}/api/login/`, credentials);
         if (response.status === 200) {
             const { access, refresh, role, user_id } = response.data;
 

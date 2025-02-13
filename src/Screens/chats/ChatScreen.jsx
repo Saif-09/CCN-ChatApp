@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getItem } from '../../utils/mmkvStorage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../utils/theme/colors';
+import { BASE_URL } from '../../api';
 
 const ChatScreen = ({ route }) => {
   const { userId, chatId, ticketQuery } = route.params;
@@ -35,7 +36,7 @@ const ChatScreen = ({ route }) => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await fetch(`http://50.17.52.102/api/students/${userId}`, {
+      const response = await fetch(`${BASE_URL}/api/students/${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -70,7 +71,7 @@ const ChatScreen = ({ route }) => {
       const payload = { answer: comment.trim() };
 
       const response = await fetch(
-        `http://50.17.52.102/api/tickets/update-view-ticket/${chatId}/`,
+        `${BASE_URL}/api/tickets/update-view-ticket/${chatId}/`,
         {
           method: 'PATCH',
           headers: {
@@ -102,7 +103,7 @@ const ChatScreen = ({ route }) => {
       }
 
       const response = await fetch(
-        `http://50.17.52.102/api/close-ticket/${chatId}/`,
+        `${BASE_URL}/api/close-ticket/${chatId}/`,
         {
           method: 'POST',
           headers: {
