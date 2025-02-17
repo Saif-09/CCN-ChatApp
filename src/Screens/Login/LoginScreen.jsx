@@ -3,7 +3,7 @@ import {
     View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator 
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import NetInfo from '@react-native-community/netinfo'; // Import NetInfo
+// import NetInfo from '@react-native-community/netinfo'; // Import NetInfo
 import colors from '../../utils/theme/colors';
 import { loginUser } from '../../redux/slices/authSlice';
 
@@ -14,20 +14,20 @@ const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.auth);
 
-    useEffect(() => {
-        // Subscribe to network status updates
-        const unsubscribe = NetInfo.addEventListener(state => {
-            setIsConnected(state.isConnected);
-        });
+    // useEffect(() => {
+    //     // Subscribe to network status updates
+    //     const unsubscribe = NetInfo.addEventListener(state => {
+    //         setIsConnected(state.isConnected);
+    //     });
 
-        return () => unsubscribe(); // Cleanup on unmount
-    }, []);
+    //     return () => unsubscribe(); // Cleanup on unmount
+    // }, []);
 
     const handleLogin = async () => {
-        if (!isConnected) {
-            Alert.alert('No Internet', 'Please check your internet connection and try again.');
-            return;
-        }
+        // if (!isConnected) {
+        //     Alert.alert('No Internet', 'Please check your internet connection and try again.');
+        //     return;
+        // }
 
         if (!username || !password) {
             Alert.alert('Error', 'Please enter username and password.');
@@ -51,11 +51,11 @@ const LoginScreen = ({ navigation }) => {
                 <Text style={[styles.title, { color: colors.primary }]}>Welcome Back!</Text>
 
                 {/* Internet Status Indicator */}
-                {!isConnected && (
+                {/* {!isConnected && (
                     <Text style={{ color: 'red', marginBottom: 10 }}>
                         No internet connection
                     </Text>
-                )}
+                )} */}
 
                 <TextInput
                     style={[styles.input, { backgroundColor: colors.secondary, borderColor: colors.border, color: colors.text }]}
