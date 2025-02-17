@@ -86,8 +86,8 @@ const SettingsScreen = () => {
         <Text style={styles.title}>Settings</Text>
 
         {/* Account Management */}
-        <Text style={styles.sectionHeader}>Account</Text>
-        <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
+        {/* <Text style={styles.sectionHeader}>Account</Text> */}
+        { /*<TouchableOpacity style={styles.button} onPress={handleEditProfile}>
           <View style={styles.buttonContent}>
             <Icon name="person-outline" size={20} color={colors.primary} />
             <Text style={styles.buttonText}>Edit Profile</Text>
@@ -100,7 +100,7 @@ const SettingsScreen = () => {
             <Text style={styles.buttonText}>Change Password</Text>
           </View>
           <Icon name="chevron-forward" size={20} color={colors.textLight} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
 
         {/* User Management (Admin Only) */}
@@ -114,13 +114,13 @@ const SettingsScreen = () => {
               </View>
               <Icon name="chevron-forward" size={20} color={colors.textLight} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleManageUsers}>
+            {/* <TouchableOpacity style={styles.button} onPress={handleManageUsers}>
               <View style={styles.buttonContent}>
                 <Icon name="people-outline" size={20} color={colors.primary} />
                 <Text style={styles.buttonText}>Manage Users</Text>
               </View>
               <Icon name="chevron-forward" size={20} color={colors.textLight} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         )}
 

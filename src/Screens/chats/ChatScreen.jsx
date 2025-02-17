@@ -191,6 +191,7 @@ const ChatScreen = ({ route }) => {
                   style={styles.commentInput}
                   placeholder="Write your answer..."
                   value={comment}
+                  placeholderTextColor={'gray'}
                   onChangeText={setComment}
                 />
                 <TouchableOpacity style={styles.resolveButton} onPress={updateTicketAnswer}>
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   queryLabel: { fontWeight: 'bold', fontSize: 16 },
   queryText: { fontSize: 16 },
   footer: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'white' },
-  commentInput: { flex: 1, padding: 10, borderWidth: 1, borderRadius: 8, borderColor: colors.border },
+  commentInput: { flex: 1, padding: 10, borderWidth: 1, borderRadius: 8, borderColor: colors.border , color:'black'},
   resolveButton: { marginLeft: 10, backgroundColor: colors.success, padding: 10, borderRadius: 8 },
   resolveButtonText: { color: 'white', fontWeight: 'bold' },
 });

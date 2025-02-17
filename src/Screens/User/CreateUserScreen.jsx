@@ -15,8 +15,8 @@ import PopMessage from '../../components/PopMessage';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import { getItem } from '../../utils/mmkvStorage';
+import { BASE_URL } from '../../api';
 
-const BASE_URL = 'https://anam014.pythonanywhere.com/api';
 
 const CreateUserScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -36,11 +36,11 @@ const CreateUserScreen = ({ navigation }) => {
 
 const validateEmail = (email) => {
   if (!emailRegex.test(email)) {
-    setPopMessage({
-      visible: true,
-      text: 'Please enter a valid email address.',
-      type: 'error',
-    });
+    // setPopMessage({
+    //   visible: true,
+    //   text: 'Please enter a valid email address.',
+    //   type: 'error',
+    // });
   }
   setEmail(email);
 };
@@ -49,7 +49,7 @@ const validateEmail = (email) => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/roles-user/`);
+        const response = await axios.get(`${BASE_URL}/api/roles-user/`);
         setRoles(
           response.data.map(role => ({
             label: role.role,
@@ -113,7 +113,7 @@ const validateEmail = (email) => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/users/`,
+        `${BASE_URL}/api/users/`,
         { username, password, email, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -250,6 +250,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     elevation: 2,
+    color:'black'
   },
   inputError: { borderColor: 'red' },
   errorText: { color: 'red', fontSize: 12, marginTop: 4 },
